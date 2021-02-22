@@ -19,23 +19,23 @@ Download and install the following:
 ```
 sudo apt-get install liblapack-dev liblapack3 libopenblas-base libopenblas-dev
 ```
-1. Compilers. This includes g++ and gfortran.
+2. Compilers. This includes g++ and gfortran.
 ```
 sudo apt-get install g++ gfortran gfortran-7 libgfortran-7-dev gdb
 ```
-1. OpenGL.
+3. OpenGL.
 ```
 sudo apt-get install freeglut3 freeglut3-dev
 ```
-1. PARDISO.
+4. PARDISO.
 	1. Download from [pardiso-project.org](pardiso-project.org). You want the gcc/gfortran 7.2.0, libparadiso600-GNU720-X86-64
-	1. Accept the license and download the .so file.
-	1. Place the .so file in:
+	2. Accept the license and download the .so file.
+	3. Place the .so file in:
 	```
 	/usr/local/lib/pardiso600/
 	```
-	1. From your email that you received, copy the license key into a text file pardiso.lic in your home directory (`~`)
-	1. If you have questions, see the [PARDISO manual](https://pardiso-project.org/manual/manual.pdf).
+	4. From your email that you received, copy the license key into a text file pardiso.lic in your home directory (`~`)
+	5. If you have questions, see the [PARDISO manual](https://pardiso-project.org/manual/manual.pdf).
 
 **Note:** This code also requires the Eigen library. However, Drew has placed this library in the repository itself, and configured the compiler to look for it there. If you want to use your own version of Eigen, you can, but switch to your own branch to do it there.
 
@@ -53,7 +53,7 @@ Open the file `~/.bashrc`, for example, `gedit ~/.bashrc`. Add the following lin
 ```
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/pardiso600
 ``` 
-1. Add the number of threads you'd like to use for PARDISO.
+2. Add the number of threads you'd like to use for PARDISO.
 ```
 export OMP_NUM_THREADS=8
 ```
@@ -62,18 +62,17 @@ export OMP_NUM_THREADS=8
 
 You have the option of either (1) compiling this code directly from the command line, (2) using the Visual Studio Code configuration that Drew provides here, or (3) figuring out how to compile the code on your own. We'll explain the first two options. **Drew recommends using Visual Studio Code.**
 
-1. Compile from the command line. We provide an example `Makefile`. Right now, it does not include the correct .cpp files, Drew has not edited it in a while. You will need to edit it to include all .cpp files in all folders.
-	1. Copy `example_setup/Makefile` to this folder. To compile your code, navigate to this folder in a terminal, and run 
+1. Compile from the command line. We provide an example `Makefile`. Right now, it does not include the correct .cpp files, Drew has not edited it in a while. You will need to edit it to include all .cpp files in all folders. To use: copy `example_setup/Makefile` to this folder. To compile your code, navigate to this folder in a terminal, and run 
 	```
 	make
 	```
-1. Compile within Visual Studio Code.
+2. Compile within Visual Studio Code.
 	1. Download and install [Visual Studio Code](https://code.visualstudio.com/download). Follow the instructions for Ubuntu.
-	1. Install the C/C++ Plugin for VS Code (see their website). Hint, VS Code's "getting started with debugging for C/C++" website is really helpful.
-	1. Open VS Code and either open the repository as a folder (`File -> Open Folder...`) or open a terminal, navigate to this folder, and run `vscode .`.
-	1. Go to the "Run" tab and run one of the compile tasks (green arrow at the top).
-	1. Set up `gdb` to correctly display `eigen` matrices. 
+	2. Set up `gdb` to correctly display `eigen` matrices. 
 		1. Copy `example_setup/example_gdbinit` to your home folder and rename it `.gdbinit`. Edit the file and change line three to the correct location of Eigen wherever you cloned this repository.
+	3. Install the C/C++ Plugin for VS Code (see their website). Hint, VS Code's "getting started with debugging for C/C++" website is really helpful.
+	4. Open VS Code and either open the repository as a folder (`File -> Open Folder...`) or open a terminal, navigate to this folder, and run `vscode .`
+	5. Go to the "Run" tab and run one of the compile tasks (green arrow at the top).
 
 ## Running horton_der_2d
 
@@ -114,25 +113,25 @@ Copied from Khalid Jawed. This may be outdated, and certain parameters are missi
 Example: ./horton_der_2d option.txt -- RodLength 0.2
 
 1. Details on the options (we use SI units): 
-    "boundary-type" = 1 for planar, 2 for sinusoidal (with robot at maximum point), and 3 for sinusoidal (with robot at minimum point)
-    "limb-length" is the length of the circular part of each limb.
-    "groove-length" is the length of the straight part of each limb.
-    "rodRadius" is the cross-sectional radius (assuming the rod is circular).
-    "youngM" is the young's modulus.
-    "Poisson" is the Poisson ratio.
-    "deltaTime" is the time step size.
-    "totalTime" is the time at which the simulation ends.
-    "tol" and "stol" are small numbers used in solving the linear system. Fraction of a percent, e.g. 1.0e-3, is often a good choice.
-    "maxIter" is the maximum number of iterations allowed before the solver quits.
-    "density" is the mass per unit volume.
-    "gVector" is the vector specifying acceleration due to gravity.
-    "viscosity" is the viscosity of the fluid medium.
-    "numVertices" is the number of nodes per limb (circular part only).
-    "limb-curvature" is the curvature of the circular part of the limbs.
-    "num-limbs" is the number of limbs.
-    "static-friction" is the coefficient of static friction.
-    "dynamic-friction" is the coefficient of dynamic friction (NOT IMPLEMENTED YET).
-    "render" (0 or 1) indicates whether OpenGL visualization should be displayed.
-    "saveData" (0 or 1) indicates whether the location of the head should be saved in "datafiles/" folder (this folder will be created by the program).
-    "data-frequency" is the number of steps per data dump. This is used to prevent huge data files.
-    "enable-auto-drop" is on/off for automatic alignment of the rod, ignored if a \bx_0 is passed to its constructor.
+	1. "boundary-type" = 1 for planar, 2 for sinusoidal (with robot at maximum point), and 3 for sinusoidal (with robot at minimum point)
+    1. "limb-length" is the length of the circular part of each limb.
+    1. "groove-length" is the length of the straight part of each limb.
+    1. "rodRadius" is the cross-sectional radius (assuming the rod is circular).
+    1. "youngM" is the young's modulus.
+    1. "Poisson" is the Poisson ratio.
+    1. "deltaTime" is the time step size.
+    1. "totalTime" is the time at which the simulation ends.
+    1. "tol" and "stol" are small numbers used in solving the linear system. Fraction of a percent, e.g. 1.0e-3, is often a good choice.
+    1. "maxIter" is the maximum number of iterations allowed before the solver quits.
+    1. "density" is the mass per unit volume.
+    1. "gVector" is the vector specifying acceleration due to gravity.
+    1. "viscosity" is the viscosity of the fluid medium.
+    1. "numVertices" is the number of nodes per limb (circular part only).
+    1. "limb-curvature" is the curvature of the circular part of the limbs.
+    1. "num-limbs" is the number of limbs.
+    1. "static-friction" is the coefficient of static friction.
+    1. "dynamic-friction" is the coefficient of dynamic friction (NOT IMPLEMENTED YET).
+    1. "render" (0 or 1) indicates whether OpenGL visualization should be displayed.
+    1. "saveData" (0 or 1) indicates whether the location of the head should be saved in "datafiles/" folder (this folder will be created by the program).
+    1. "data-frequency" is the number of steps per data dump. This is used to prevent huge data files.
+    1. "enable-auto-drop" is on/off for automatic alignment of the rod, ignored if a \bx_0 is passed to its constructor.

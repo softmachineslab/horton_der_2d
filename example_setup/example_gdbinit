@@ -1,0 +1,6 @@
+python
+import sys
+sys.path.insert(0, '/home/drew/repositories/planar_der/eigen/eigen-eigen-323c052e1731/debug/gdb')
+from printers import register_eigen_printers
+register_eigen_printers (None)
+end

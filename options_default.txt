@@ -21,8 +21,9 @@ data-frequency 5
 enable-auto-drop true
 debug-verbosity 1
 cmdline-period 100
-logfile-base ~/repositories/simrollingstar_simdata/simBiped
+enable-logging 0
+logfile-base logging/log_files
 num-simulations 1
-ol-control-filepath ~/repositories/planar_der/simTripod/controllers/openloop_control_trajectories/tripod_ol_gait_fm_2020-09-03.csv
+ol-control-filepath controllers/openloop_control_trajectories/tripod_ol_gait_fm_2020-09-03.csv
 foot-ratio 0.2
 compression-kB-max 0.4

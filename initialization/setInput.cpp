@@ -33,6 +33,7 @@ setInput::setInput()
   AddOption("cmdline-period", "Period of output to command line for check-in updates", cmdline_per);
   AddOption("logfile-base", "Base directory to store the logfiles in.", logfile_base);
   AddOption("ol-control-filepath", "CSV file with actuation timepoints for rodOpenLoopFileController.", ol_control_filepath);
+  AddOption("enable-logging", "Turn logging on or off.", enable_logging);
   AddOption("num-simulations", "Number of simulations to execute. For deterministic simulations, choose = 1.", num_simulations);
   AddOption("foot-ratio", "Foot segment length as a percent of limb length", foot_ratio);
   AddOption("compression-kB-max", "Maximum kappaBar value for the compression SMA model", compression_kB_max);

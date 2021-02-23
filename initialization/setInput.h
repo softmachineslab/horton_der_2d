@@ -66,6 +66,7 @@ private:
 	int cmdline_per;
 	std::string logfile_base;
 	std::string ol_control_filepath;
+	bool enable_logging;
 	int num_simulations;
 	double foot_ratio;
 	double compression_kB_max;

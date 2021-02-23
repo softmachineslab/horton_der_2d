@@ -52,8 +52,9 @@
 
 // #include <unistd.h> // for sleep(1)
 
-// global variables
-ofstream kappaOutFile;
+// Hack: main creates the output file for logging
+ofstream logging_output_file;
+
 // Here is where we declare verbosity as a variable.
 // the global_const.h file makes it "extern" for everyone else
 int verbosity;
@@ -84,9 +85,11 @@ int main(int argc,char *argv[])
 	verbosity = inputData.GetIntOpt("debug-verbosity");
 	// for the simulation environment to output periodic updates
 	int cmdline_per = inputData.GetIntOpt("cmdline-period");
+	// turn the logger on or off
+	bool enable_logging = inputData.GetBoolOpt("enable-logging");
 	// folder for the logger
 	std::string logfile_base = inputData.GetStringOpt("logfile-base");
-	// where to read the actuation timepoints from
+	// If using the rodOpenLoopFileController: where to read the actuation timepoints from
 	std::string act_csv_path = inputData.GetStringOpt("ol-control-filepath");
 	// number of simulations to run (for the loop below.)
 	// should be 1 if deterministic!
@@ -101,10 +104,12 @@ int main(int argc,char *argv[])
 		std::cout << to_string(inputData.GetScalarOpt("totalTime")) << " seconds long." << std::endl;
 	}
 
+	/**
+	 * Initialize the location of the robot (the discrete elastic rod) in space.
+	 */
+
 	// Since we don't anticipate needing to set the rigid body initial position via command line,
 	// i.e. it will only be done programatically, we can pass it in as another argument to the world constructor.
-	// VectorXd rb_state_0(6);
-	// rb_state_0 << 0.0, 0.03, 0.0, 0.0, 0.0, 0.0;
 	VectorXd rb_state_0 = VectorXd::Zero(6);
 	rb_state_0(1) = 0.0; // y offset
 	rb_state_0(2) = 0.0; // initial rotation, degrees
@@ -124,13 +129,10 @@ int main(int argc,char *argv[])
 	// vector<double> stddevs = {0.02, 0.035, 180.0, 0.02, 0.02, 300};
 	// unique_ptr<initialStateBabbler> st_babbler_p = make_unique<initialStateBabbler>(means, stddevs);
 
-	// Now we can run the simulation iteratively.
 	// ***NOTE that the GUI is broken for multiple iterations!!!! Must find a way to exit GLUT...
-	// int num_simulations = 10;
-
 	for(int i=0; i < num_simulations; i++) {
 
-		// Initialize the pose of the robot
+		// UNCOMMENT if using the initial state sampler
 		// VectorXd rb_state_0 = st_babbler_p->getSample();
 
 		if( verbosity >= 1){
@@ -143,51 +145,43 @@ int main(int argc,char *argv[])
 		// Primary tie-in to set up basically everything.
 		myworld_p->setRodStepper();
 
-		// Set up the logging infrastructure
-		// rodKappaLogger kLogger = rodKappaLogger("simTripodKappa", kappaOutFile, myworld_p, logging_period);
-		// rodKbEILogger kLogger = rodKbEILogger("simTripodKbEI", kappaOutFile, myworld_p, logging_period);
-		// rodRBStateFileLogger kLogger = rodRBStateFileLogger("simTripodRBState", kappaOutFile, myworld_p, logging_period);
-		// worldLogger *logger_p = new rodRBStateFileLogger("simTripodRBState", kappaOutFile, myworld_p, logging_period);
-		// attempting to use smart pointers. will be passed around so... shared
-		// shared_ptr<worldLogger> logger_p = make_shared<rodRBStateFileLogger>("simTripodRBState", logfile_base, kappaOutFile, myworld_p, logging_period);
-		// shared_ptr<worldLogger> logger_p = make_shared<rodAllNodeLogger>("simBipedAllNodes", logfile_base, kappaOutFile, myworld_p, logging_period);
+		/**
+		 * Set up the logging infrastructure if you want to save data.
+		 */
 
-		// This writes the header.
-		// logger_p->setup();
+		shared_ptr<worldLogger> logger_p = nullptr;
+		// We use a flag from the options text file to enable/disable logging
+		if(enable_logging){
+			logger_p = make_shared<rodRBStateFileLogger>("simTripodRBState", logfile_base, logging_output_file, myworld_p, logging_period);
+			// logger_p = make_shared<rodAllNodeLogger>("simBipedAllNodes", logfile_base, logging_output_file, myworld_p, logging_period);
+			
+			// This writes the header. You must call it here!
+			logger_p->setup();
+		}
 
-		// Create a controller and assign it to the world.
-		// rodCOMSingleShotController ctlr = rodCOMSingleShotController(numAct);
-		// controller_p = new rodCOMSingleShotController(numAct);
-		// controller_p = new rodCOMPWMController(numAct);
-		// controller_p = new rodEmptyController(numAct);
-		// rodController *controller_p = new rodEmptyController(numAct);
+		/**
+		 * Create a controller for the rod, and assign it to the world.
+		 */
+
+		// Option 1) Controller that does nothing:
 		// shared_ptr<rodController> controller_p = make_shared<rodEmptyController>(numAct);
 
-		// For the open-loop controller: specify the seven start times, periods, and duty cycles.
-		// double st_t = 0.1;
+		// Option 2) Open-loop controller for the pulse-width-modulation (PWM) input to the shape memory alloy (SMA) actuator model.
+		// PWMs take a duty cycle and frequency, and will "power on" our imaginary SMA wires intermittently.
+		// The SMAs change the rod mechanics parameters (specifically, the intrinsic curvature, kappaBar) that move the robot.
+		// **NOTE** you must specify the correct number of PWM inputs as the number of SMAs on the robot.
+		// Below are examples for the "rolling star" robot with 7-10 SMAs. Horton uses 10.
+
+		// Period:
 		double per_t = 0.08; // short period with low duty cycle means slow pulses to heat up the SMA
-		// Same start time
+		// Start time:
+		// double st_t = 0.1;
+		// All the same start time:
 		// std::vector<double> act_starts = {st_t, st_t, st_t, st_t, st_t, st_t, st_t};
 		// Turning on some later 
 		// std::vector<double> act_starts = {1.0, st_t, st_t, st_t, st_t, st_t};
-		// std::vector<double> act_pers = {per_t, per_t, per_t, per_t, per_t, per_t, per_t};
 
-		// duty cycle as a percent, 0 to 1
-		// For "fast" inertial rolling motions
-		// std::vector<double> act_dutys = {0.0, 0.01, 0.01, 0.0, 0.0, 0.0, 0.01}; // funky deformation 1
-		// std::vector<double> act_dutys = {0.0, 0.01, 0.0, 0.0, 0.0, 0.0, 0.0}; // one leg deformation
-		// std::vector<double> act_dutys = {0.0, 0.01, 0.01, 0.0, 0.0, 0.0, 0.0}; // two leg deformation
-		// For "slow" pseudo-static motions, *not* reliant on frictional properties/hybrid transitions
-		// std::vector<double> act_dutys = {0.0, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0}; // one leg
-		// std::vector<double> act_dutys = {0.0, 0.05, 0.05, 0.0, 0.0, 0.0, 0.0}; // two leg
-		// std::vector<double> act_dutys = {0.05, 0.05, 0.05, 0.0, 0.0, 0.0, 0.0}; // two PLUS 0th leg
-		// std::vector<double> act_dutys = {0.0, 0.05, 0.05, 0.05, 0.0, 0.0, 0.0}; // three leg
-		// std::vector<double> act_dutys = {0.05, 0.05, 0.05, 0.05, 0.0, 0.0, 0.0}; // three PLUS 0th leg
-		// std::vector<double> act_dutys = {0.0, 0.05, 0.05, 0.05, 0.05, 0.0, 0.0}; // four leg
-		// std::vector<double> act_dutys = {0.0, 0.05, 0.05, 0.05, 0.05, 0.05, 0.0}; // five leg
-		// std::vector<double> act_dutys = {0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.0}; // five PLUS 0th leg - should have delay for 0 here
-
-		// Now initialized to match num-limbs in the config text file.
+		// Now initialized to match num-limbs in the options text file.
 		// NOTE that there are now TWO ACTUATORS per limb: 
 		// [0, 1], [2, 3], ..., [2(N-2), 2(N-1)]
 		// std::vector<double> act_starts(numAct, st_t);
@@ -195,7 +189,7 @@ int main(int argc,char *argv[])
 		// std::vector<double> act_dutys(numAct, 0.0);
 		// and we can manually modify as desired.
 		// NOTE, this can cause a segfault if misaligned with numAct!
-		// The tripod has 5 limbs, 0-through-4,
+		// Horton has 5 limbs, 0-through-4,
 		// which are actuators (0,1) - (2,3) - (4,5) - (6,7) - (8,9)
 		// where each are (right, left) bending
 		// act_dutys[0] = 0.02;
@@ -206,44 +200,42 @@ int main(int argc,char *argv[])
 		// act_dutys[8] = 0.02;
 		// act_dutys[9] = 0.02;
 
-		// To make the middle leg wiggle back and forth like a PATRICK limb, let's set different start times,
-		// and then hack a hard cutoff time in the controller for one direction.
-		// act_dutys[4] = 0.05;
-		// act_dutys[5] = 0.05;
-		// act_starts[5] = 2;
-
+		// Finally: create the manually-defined open-loop controller
 		// shared_ptr<rodController> controller_p = make_shared<rodOpenLoopPWMController>(numAct, act_starts, act_pers, act_dutys);
 		
-		// Now, use a CSV file.
-		// std::string act_csv_path = "openloop_control_trajectories/tripod_ol_control_example_2020-09-02.csv";
+		// Option 3) Open-loop controller, reading inputs from a comma-separated-value (CSV) file.
+		// Note that act_csv_path is specified via the options file
 		shared_ptr<rodController> controller_p = make_shared<rodOpenLoopFileController>(numAct,  act_pers, act_csv_path);
 
+		// Attach the controller to the world.
 		myworld_p->setRodController(controller_p);
 
-		// Make a simulation environment based on render yes/no from the inputData
+		/**
+		 * Create a "simulation environment" that will manage logging, command line output, etc.
+		 * The "render" flag from the options file determines if we will use a graphical interface or not.
+		 */
 		unique_ptr<derSimulationEnvironment> env_p = nullptr;
 		if(myworld_p->isRender()){
 			// NOTE this is BROKEN for num_simulations > 1!
-			// env_p = make_unique<openglDERSimulationEnvironment>(myworld_p, cmdline_per, logger_p, argc, argv);
-			// no log for some testing for now
-			env_p = make_unique<openglDERSimulationEnvironment>(myworld_p, cmdline_per, argc, argv);
+			if(enable_logging){
+				env_p = make_unique<openglDERSimulationEnvironment>(myworld_p, cmdline_per, logger_p, argc, argv);
+			}
+			else{
+				env_p = make_unique<openglDERSimulationEnvironment>(myworld_p, cmdline_per, argc, argv);
+			}
 		}
 		else
 		{
-			// env_p = make_unique<headlessDERSimulationEnvironment>(myworld_p, cmdline_per, logger_p);
-			// no log for some testing for now
-			env_p = make_unique<headlessDERSimulationEnvironment>(myworld_p, cmdline_per);
+			if(enable_logging){
+				env_p = make_unique<headlessDERSimulationEnvironment>(myworld_p, cmdline_per, logger_p);
+			}
+			else{
+				env_p = make_unique<headlessDERSimulationEnvironment>(myworld_p, cmdline_per);
+			}
 		}
-		
-		// bool render = myworld_p->isRender();
-
-		// Use the "simulation environment" paradigm. Only main will ever have a sim env.
-		// unique_ptr<derSimulationEnvironment> env_p = make_unique<openglDERSimulationEnvironment>(myworld_p, cmdline_per, logger_p, argc, argv);
-		// unique_ptr<derSimulationEnvironment> env_p = make_unique<headlessDERSimulationEnvironment>(myworld_p, cmdline_per, logger_p);
 
 		// run until world's total time from inputData
 		env_p->runSimulation();
-
 	}
 	
 	return 0;

@@ -148,6 +148,9 @@ std::vector<int> rodOpenLoopFileController::getU(shared_ptr<elasticRod> rod_p)
     {
         u[i] = pwm[i]->getHighLow();
     }
+    // Debugging: center of mass of the rod to the terminal.
+    // Wuzhou and Zhewei: this will help you get started!
+    // std::cout << rod_p->getCOM() << std::endl;
     
     return u;
 }

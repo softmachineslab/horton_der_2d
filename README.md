@@ -11,6 +11,19 @@ This code is designed to prevent any hard-coded paths to files on your computer.
 
 Code designed to work on Ubuntu 18.04.
 
+If attempting to run on Mac OS X, you will need to figure out how to install all the prerequisite packages below. 
+Unsure if other changes need to be made.
+**At least one change** is in `main.c`, when including the OpenGL library.
+Replace the line
+```
+#include <GL/glut.h>
+```
+which is used for Linux, with
+```
+#include <GLUT/glut.h>
+```
+to use with Mac OS X.
+
 ### Prerequisites
 
 Download and install the following:

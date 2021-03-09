@@ -205,7 +205,11 @@ int main(int argc,char *argv[])
 		
 		// Option 3) Open-loop controller, reading inputs from a comma-separated-value (CSV) file.
 		// Note that act_csv_path is specified via the options file
-		shared_ptr<rodController> controller_p = make_shared<rodOpenLoopFileController>(numAct,  act_pers, act_csv_path);
+		// shared_ptr<rodController> controller_p = make_shared<rodOpenLoopFileController>(numAct,  act_pers, act_csv_path);
+
+		// note: this is a better way to do
+		// rodController* controller_p = new rodCOMPWMController(numAct);
+		shared_ptr<rodController> controller_p = make_shared<rodCOMPWMController>(numAct);
 
 		// Attach the controller to the world.
 		myworld_p->setRodController(controller_p);

@@ -38,3 +38,6 @@
 
 # matlab and other temp files
 *~
+
+# vs code things
+packages.microsoft.gpg

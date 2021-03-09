@@ -41,7 +41,7 @@ sudo apt-get install g++ gfortran gfortran-7 libgfortran-7-dev gdb
 sudo apt-get install freeglut3 freeglut3-dev
 ```
 4. PARDISO.
-	1. Download from [pardiso-project.org](pardiso-project.org). You want the gcc/gfortran 7.2.0, libparadiso600-GNU720-X86-64
+	1. Download from [pardiso-project.org](https://www.pardiso-project.org/). You want the gcc/gfortran 7.2.0, libparadiso600-GNU720-X86-64
 	2. Accept the license and download the .so file.
 	3. Place the .so file in:
 	```
@@ -73,6 +73,19 @@ export OMP_NUM_THREADS=8
 
 ### Set up your compiler or your develoment environment
 
+Configure `gdb`, the debugger for `g++`, to display `eigen` matrices correctly.
+Copy `example_setup/example_gdbinit` to your home folder and rename it `.gdbinit`. Edit the file and change line three to the correct location of Eigen wherever you cloned this repository.
+
+Example, if your user is `drew` and you cloned this repository to your home directory:
+
+```
+cp ~/horton_der_2d/example_setup/example_gdbinit ~/.gdbinit
+```
+Then change line 3 to:
+```
+sys.path.insert(0, '/home/drew/horton_der_2d/eigen/eigen-eigen-323c052e1731/debug/gdb')
+```
+
 You have the option of either (1) compiling this code directly from the command line, (2) using the Visual Studio Code configuration that Drew provides here, or (3) figuring out how to compile the code on your own. We'll explain the first two options. **Drew recommends using Visual Studio Code.**
 
 1. Compile from the command line. We provide an example `Makefile`. Right now, it does not include the correct .cpp files, Drew has not edited it in a while. You will need to edit it to include all .cpp files in all folders. To use: copy `example_setup/Makefile` to this folder. To compile your code, navigate to this folder in a terminal, and run 
@@ -81,11 +94,12 @@ You have the option of either (1) compiling this code directly from the command 
 	```
 2. Compile within Visual Studio Code.
 	1. Download and install [Visual Studio Code](https://code.visualstudio.com/download). Follow the instructions for Ubuntu.
-	2. Set up `gdb` to correctly display `eigen` matrices. 
-		1. Copy `example_setup/example_gdbinit` to your home folder and rename it `.gdbinit`. Edit the file and change line three to the correct location of Eigen wherever you cloned this repository.
-	3. Install the C/C++ Plugin for VS Code (see their website). Hint, VS Code's "getting started with debugging for C/C++" website is really helpful.
-	4. Open VS Code and either open the repository as a folder (`File -> Open Folder...`) or open a terminal, navigate to this folder, and run `vscode .`
-	5. Go to the "Run" tab and run one of the compile tasks (green arrow at the top).
+	2. Install the C/C++ Plugin for VS Code (see their website). Hint, VS Code's "getting started with debugging for C/C++" website is really helpful.
+	3. Open VS Code and either open the repository as a folder (`File -> Open Folder...`) or open a terminal, navigate to this folder, and run `vscode .`
+	4. Go to the "Run" tab and run one of the compile tasks (green arrow at the top), such as `g++ build and debug active file`
+
+Note that if you want to run the code faster, choose `g++ optimized build and debug active file`.
+If you want to run the currently-compiled code again without recompiling, choose `g++ debug active file`.
 
 ## Running horton_der_2d
 

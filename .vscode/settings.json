@@ -73,6 +73,7 @@
         "codecvt": "cpp",
         "filesystem": "cpp",
         "nonlinearoptimization": "cpp",
-        "*.txx": "cpp"
+        "*.txx": "cpp",
+        "bit": "cpp"
     }
 }

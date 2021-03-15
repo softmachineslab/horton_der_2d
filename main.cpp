@@ -47,6 +47,7 @@
 #include "controllers/rodEmptyController.h"
 #include "controllers/rodOpenLoopPWMController.h"
 #include "controllers/rodOpenLoopFileController.h"
+#include "controllers/rodMyFirstController.h"
 // Some constants used throughout this program
 #include "global_const.h"
 
@@ -61,6 +62,7 @@ int verbosity;
 
 int main(int argc,char *argv[])
 {
+	// argv is option_default.txt
 	// Startup: load the options file.
 	setInput inputData;
 	inputData = setInput();
@@ -111,10 +113,10 @@ int main(int argc,char *argv[])
 	// Since we don't anticipate needing to set the rigid body initial position via command line,
 	// i.e. it will only be done programatically, we can pass it in as another argument to the world constructor.
 	VectorXd rb_state_0 = VectorXd::Zero(6);
+	rb_state_0(0) = 0.04; // x offset
 	rb_state_0(1) = 0.0; // y offset
 	rb_state_0(2) = 0.0; // initial rotation, degrees
-	rb_state_0(3) = 0.0; // x-velocity 
-	rb_state_0(4) = 0.0; // y-velocity
+	rb_state_0(3) = 0.0; // x-velocity
 	rb_state_0(4) = 0.0; // y-velocity
 	rb_state_0(5) = 0.0; // angular velocity, deg/sec.
 
@@ -177,9 +179,9 @@ int main(int argc,char *argv[])
 		// Start time:
 		// double st_t = 0.1;
 		// All the same start time:
-		// std::vector<double> act_starts = {st_t, st_t, st_t, st_t, st_t, st_t, st_t};
+		// std::vector<double> act_starts = {st_t, st_t, st_t, st_t, st_t, st_t, st_t, st_t, st_t, st_t};
 		// Turning on some later 
-		// std::vector<double> act_starts = {1.0, st_t, st_t, st_t, st_t, st_t};
+		// std::vector<double> act_starts = {1.0, st_t, st_t, st_t, st_t, st_t, st_t, st_t, st_t,};
 
 		// Now initialized to match num-limbs in the options text file.
 		// NOTE that there are now TWO ACTUATORS per limb: 
@@ -205,7 +207,13 @@ int main(int argc,char *argv[])
 		
 		// Option 3) Open-loop controller, reading inputs from a comma-separated-value (CSV) file.
 		// Note that act_csv_path is specified via the options file
-		shared_ptr<rodController> controller_p = make_shared<rodOpenLoopFileController>(numAct,  act_pers, act_csv_path);
+		// shared_ptr<rodController> controller_p = make_shared<rodOpenLoopFileController>(numAct,  act_pers, act_csv_path);
+
+		// Try to use rodCOMPWMController
+		shared_ptr<rodController> controller_p = make_shared<rodMyFirstController>(numAct);
+
+		// Try to use rodCOMSingleShotController
+		// shared_ptr<rodController> controller_p = make_shared<rodCOMSingleShotController>(numAct);
 
 		// Attach the controller to the world.
 		myworld_p->setRodController(controller_p);

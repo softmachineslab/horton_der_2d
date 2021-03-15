@@ -209,17 +209,17 @@ int main(int argc,char *argv[])
 		// Note that act_csv_path is specified via the options file
 		// shared_ptr<rodController> controller_p = make_shared<rodOpenLoopFileController>(numAct,  act_pers, act_csv_path);
 
-<<<<<<< HEAD
+
 		// Try to use rodCOMPWMController
 		shared_ptr<rodController> controller_p = make_shared<rodMyFirstController>(numAct);
 
 		// Try to use rodCOMSingleShotController
 		// shared_ptr<rodController> controller_p = make_shared<rodCOMSingleShotController>(numAct);
-=======
+
 		// note: this is a better way to do
 		// rodController* controller_p = new rodCOMPWMController(numAct);
-		shared_ptr<rodController> controller_p = make_shared<rodCOMPWMController>(numAct);
->>>>>>> ab0b36383507d3c2022579dde435c9122da8544f
+		// shared_ptr<rodController> controller_p = make_shared<rodCOMPWMController>(numAct);
+
 
 		// Attach the controller to the world.
 		myworld_p->setRodController(controller_p);

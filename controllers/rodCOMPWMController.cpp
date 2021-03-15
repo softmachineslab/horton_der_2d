@@ -51,7 +51,11 @@ std::vector<int> rodCOMPWMController::getU(shared_ptr<elasticRod> rod_p)
     double next_per = 0.0;
     double next_dut = 0.0;
     // Negative is to the left. in meters.
+<<<<<<< HEAD
     if( com[0] > 0.01) {
+=======
+    if( com[0] > -0.01) {
+>>>>>>> ab0b36383507d3c2022579dde435c9122da8544f
         // msec
         next_per = 0.2;
         // duty cycle
@@ -67,10 +71,14 @@ std::vector<int> rodCOMPWMController::getU(shared_ptr<elasticRod> rod_p)
         next_dut = 0.04;
     }
 
-    // as an example, do the same to all actuators.
+    // as an example, do the same to every other actuator.
     for (size_t i = 0; i < pwm.size(); i++)
     {
+<<<<<<< HEAD
         if (i == 1) {
+=======
+        if( i % 2 == 0){
+>>>>>>> ab0b36383507d3c2022579dde435c9122da8544f
             pwm[i]->setPeriod(next_per);
             pwm[i]->setDutyCycle(next_dut);
             u[i] = pwm[i]->getHighLow();
